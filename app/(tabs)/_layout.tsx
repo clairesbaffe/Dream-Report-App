@@ -40,7 +40,7 @@ export default function TabLayout() {
           title: "History",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
                     headerRight: () => (
-            <Link href="/modal" asChild>
+            <Link href="/ResetAllDreams" asChild>
               <Pressable>
                 {({ pressed }) => (
                   <FontAwesome

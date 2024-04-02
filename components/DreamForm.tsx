@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
-import { TextInput, Button, Checkbox } from "react-native-paper";
+import { View, StyleSheet, Dimensions, Pressable } from "react-native";
+import { TextInput, Button, Checkbox, Chip, Text } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DatePicker from "@/components/DatePicker";
 
 import { useNavigation } from "@react-navigation/native";
+
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { AntDesign } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 
@@ -21,18 +24,23 @@ export default function DreamForm({
   const [dreamText, setDreamText] = useState("");
   const [isLucidDream, setIsLucidDream] = useState(false);
   const [dreamDate, setDreamDate] = useState(new Date(Date.now()));
+  const [apiCategoriesDream, setApiCategoriesDream] = useState([]);
+  const [newCategory, setNewCategory] = useState("");
 
   let categoriesToRecord: any[] = [];
 
-  const [apiResponse, setApiResponse] = useState(null);
+  const [useAICategories, setUseAICategories] = useState(false);
 
   useEffect(() => {
     if (dreamData) {
       setDreamTitle(dreamData.title);
       setDreamText(dreamData.description.replace(/\\n/g, "\n"));
       setIsLucidDream(dreamData.isLucid);
+
       const [day, month, year] = dreamData.date.split("/");
       setDreamDate(new Date(year, month - 1, day));
+
+      setApiCategoriesDream(dreamData.apiCategories);
     }
   }, []);
 
@@ -50,52 +58,46 @@ export default function DreamForm({
 
     try {
       // --------------------- MEANINGCLOUD API ---------------------
-      const apiUrl = "https://api.meaningcloud.com/topics-2.0";
-      const language = "en";
-      const tmpDream = dreamText;
-      const apiKey = "b8f86bc3db5dbe851f2cafbfaeffe8fe";
-      const formdata = new FormData();
-      formdata.append("key", apiKey);
-      formdata.append("txt", tmpDream);
-      formdata.append("lang", language);
 
-      const requestOptions = {
-        method: "POST",
-        body: formdata,
-        redirect: "follow",
-      };
+      if (useAICategories) {
+        const apiUrl = "https://api.meaningcloud.com/topics-2.0";
+        const language = "en";
+        const tmpDream = dreamText;
+        const apiKey = "8a9e14d3f8705c94a3b33d3054664a27";
+        const formdata = new FormData();
+        formdata.append("key", apiKey);
+        formdata.append("txt", tmpDream);
+        formdata.append("lang", language);
 
-      const response = await fetch(apiUrl, requestOptions);
-      const responseData = await response.json();
+        const requestOptions = {
+          method: "POST",
+          body: formdata,
+          redirect: "follow",
+        };
 
-      setApiResponse(responseData);
-      console.log("apiResponse : ", apiResponse);
-
-      responseData.concept_list.forEach((element: any) => {
-        categoriesToRecord.push(element.form);
-      });
-
-      responseData.entity_list.forEach((element: any) => {
-        categoriesToRecord.push(element.form);
-      });
-
-      setApiResponse(null);
-
-      let modifiedText = dreamText.replace(/\n/g, "\\n");
+        categoriesToRecord = await callMeaningCloudAPI(apiUrl, requestOptions);
+      } else {
+        apiCategoriesDream.forEach((element: any) => {
+          categoriesToRecord.push(element);
+        });
+      }
 
       // --------------------- RECORD DATA ON ASYNCSTORAGE ---------------------
       // Get current data array from AsyncStorage
       const existingData = await AsyncStorage.getItem("dreamFormDataArray");
       let formDataArray = existingData ? JSON.parse(existingData) : [];
 
+      // define id
       let dataId;
       if (update) {
         dataId = dreamData.id;
       } else {
         if (formDataArray[0])
-          dataId = formDataArray[formDataArray.length - 1].id + 1 || 1;
+          dataId = formDataArray[formDataArray.length - 1].id + 1;
         else dataId = 1;
       }
+
+      let modifiedText = dreamText.replace(/\n/g, "\\n"); // to save as valid JSON
 
       const newDreamToPush = {
         id: dataId,
@@ -138,6 +140,10 @@ export default function DreamForm({
         setDreamText("");
         setIsLucidDream(false);
         setDreamDate(new Date(Date.now()));
+        setApiCategoriesDream([]);
+
+        setUseAICategories(false);
+
         categoriesToRecord = [];
       }
     } catch (error) {
@@ -148,6 +154,38 @@ export default function DreamForm({
   const updateDate = (date: Date) => {
     setDreamDate(date);
   };
+
+  const handleDeleteCategory = (indexToDelete: any) => {
+    setApiCategoriesDream((prevCategories) =>
+      prevCategories.filter((_, index) => index !== indexToDelete)
+    );
+  };
+
+  const handleAddCategory = () => {
+    setApiCategoriesDream((prevCategories) =>
+      prevCategories.concat(newCategory)
+    );
+    setNewCategory("");
+  };
+
+  async function callMeaningCloudAPI(apiUrl: any, requestOptions: any) {
+    const response = await fetch(apiUrl, requestOptions);
+    const responseData = await response.json();
+
+    const categories: any[] = [];
+
+    console.log("apiResponse : ", responseData);
+
+    responseData.concept_list.forEach((element: any) => {
+      categories.push(element.form);
+    });
+
+    responseData.entity_list.forEach((element: any) => {
+      categories.push(element.form);
+    });
+
+    return categories;
+  }
 
   return (
     <View style={styles.container}>
@@ -178,6 +216,61 @@ export default function DreamForm({
         />
       </View>
 
+      <View style={styles.checkboxContainer}>
+        <Checkbox.Item
+          label="Use AI-generated categories ?"
+          status={useAICategories ? "checked" : "unchecked"}
+          onPress={() => setUseAICategories(!useAICategories)}
+        />
+      </View>
+
+      {update ? (
+        <View>
+          <Text style={styles.title}>Categories : </Text>
+          <View style={styles.chipContainer}>
+            {apiCategoriesDream.map((item: any, index: any) => (
+              <Chip style={styles.chip} mode="outlined" key={index}>
+                <View style={styles.chipElements}>
+                  <Text>{item}</Text>
+                  <Pressable
+                    style={styles.chipElementsIcon}
+                    onPress={() => handleDeleteCategory(index)}
+                  >
+                    {({ pressed }) => (
+                      <AntDesign name="closecircleo" size={24} color="black" />
+                    )}
+                  </Pressable>
+                </View>
+              </Chip>
+            ))}
+
+            <View style={styles.addCategoryContainer}>
+              <TextInput
+                label="New Category"
+                value={newCategory}
+                onChangeText={(category) => setNewCategory(category)}
+                mode="outlined"
+                style={[
+                  styles.input,
+                  { width: width * 0.6, alignSelf: "center" },
+                ]}
+              />
+
+              <Button
+                mode="contained"
+                onPress={handleAddCategory}
+                style={[
+                  styles.button,
+                  { marginVertical: 10, marginTop: 0, marginLeft: 8 },
+                ]}
+              >
+                Add
+              </Button>
+            </View>
+          </View>
+        </View>
+      ) : null}
+
       <Button
         mode="contained"
         onPress={handleDreamSubmission}
@@ -203,5 +296,35 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 8,
+
+    display: "flex",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  chipContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
+  chip: {
+    margin: 2,
+    width: "auto",
+  },
+  chipElements: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  chipElementsIcon: {
+    marginLeft: 5,
+  },
+  addCategoryContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
   },
 });

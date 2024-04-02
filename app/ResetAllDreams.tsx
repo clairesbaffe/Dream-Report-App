@@ -8,7 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import TextualInfo from "@/components/TextualInfo";
 import { Text, View } from "@/components/Themed";
 
-export default function ModalScreen() {
+export default function ResetAllDreams() {
   const navigation = useNavigation();
 
   const handleResetDreams = async () => {

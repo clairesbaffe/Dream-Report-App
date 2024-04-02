@@ -19,7 +19,7 @@ export default function DreamHistory() {
         const formDataArray = existingData ? JSON.parse(existingData) : [];
         if (formDataArray) setDreamData(formDataArray);
 
-        if (!searchString || searchString == '') {
+        if (!searchString || searchString == "") {
           setFilteredData(dreamData);
         }
       } catch (error) {
@@ -31,16 +31,17 @@ export default function DreamHistory() {
   }, [dreamData]);
 
   useEffect(() => {
-    if (searchString && searchString != '') {
+    if (searchString && searchString != "") {
       const filteredData = dreamData.filter((item: any) => {
-        return item.title.toLowerCase().includes(searchString.toLowerCase()) || item.date.toLowerCase().includes(searchString.toLowerCase());
+        return (
+          item.title.toLowerCase().includes(searchString.toLowerCase()) ||
+          item.date.toLowerCase().includes(searchString.toLowerCase())
+        );
       });
       setFilteredData(filteredData);
     } else {
       setFilteredData(dreamData);
     }
-
-    console.log("USE EFFECT 2");
   }, [searchString]);
 
   const updateSearchString = (searchField: String) => {
@@ -50,9 +51,18 @@ export default function DreamHistory() {
   return (
     <View style={styles.container}>
       <SearchingForm searchStringSetter={updateSearchString} />
-      {filteredData.map((item, index) => (
-        <PresentationCard dream={item} key={index} />
-      ))}
+      {filteredData
+      // sort by date DESC
+        .sort((a, b) => {
+          return (
+            // to actually sort by date (date is saved in dd/mm/yyyy format)
+            b.date.split("/").reverse().join("") -
+            a.date.split("/").reverse().join("")
+          );
+        })
+        .map((item, index) => (
+          <PresentationCard dream={item} key={index} />
+        ))}
     </View>
   );
 }
