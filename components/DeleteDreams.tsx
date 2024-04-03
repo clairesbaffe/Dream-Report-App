@@ -9,10 +9,24 @@ import { useNavigation } from "@react-navigation/native";
 import { View } from "@/components/Themed";
 import { useState } from "react";
 
-export default function ResetAllDreams() {
+export default function ResetAllDreams({
+  visible,
+  resetAll,
+  dreamId,
+  buttonTitle,
+  dialogTitle,
+  dialogText,
+}: {
+  visible: Boolean,
+  resetAll: Boolean;
+  dreamId: Number;
+  buttonTitle: String;
+  dialogTitle: String;
+  dialogText: String;
+}) {
   const navigation = useNavigation();
 
-  const [visible, setVisible] = useState(false);
+  const [visibleDialog, setVisible] = useState(false);
 
   const showDialog = () => setVisible(true);
 
@@ -20,37 +34,44 @@ export default function ResetAllDreams() {
 
   const handleResetDreams = async () => {
     try {
-      AsyncStorage.clear();
-      console.log("Liste des rêves réinitialisée");
+      if (resetAll) {
+        AsyncStorage.clear();
+        console.log("Dreams list reset");
+      } else {
+        const existingData = await AsyncStorage.getItem("dreamFormDataArray");
+        let formDataArray = existingData ? JSON.parse(existingData) : [];
+
+        formDataArray = formDataArray.filter((element: any) => element.id !== dreamId);
+
+        await AsyncStorage.setItem(
+          "dreamFormDataArray",
+          JSON.stringify(formDataArray)
+        );
+      }
+
       hideDialog();
 
       navigation.goBack();
     } catch (error) {
-      console.error("Erreur lors de la réinitialisation des données:", error);
+      console.error("Error while reseting datas:", error);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Button
-        mode="contained-tonal"
-        onPress={showDialog}
-        style={styles.button}
-      >
-        Reset all dreams
+    
+    <View style={[styles.container, visible ? {} : { display: 'none' }]}>
+      <Button mode="contained-tonal" onPress={showDialog} style={styles.button}>
+        {buttonTitle}
       </Button>
       <Portal>
-        <Dialog visible={visible} onDismiss={hideDialog}>
-          <Dialog.Title>Are you sure ?</Dialog.Title>
+        <Dialog visible={visibleDialog} onDismiss={hideDialog}>
+          <Dialog.Title>{dialogTitle}</Dialog.Title>
           <Dialog.Content>
-            <Text variant="bodyMedium">
-              This operation is irreversible, do you really want to reset all
-              your dreams ?
-            </Text>
+            <Text variant="bodyMedium">{dialogText}</Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={hideDialog}>Cancel</Button>
-            <Button onPress={handleResetDreams}>I am sure</Button>
+            <Button onPress={handleResetDreams}>OK</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -77,6 +98,7 @@ const styles = StyleSheet.create({
     width: "80%",
   },
   button: {
-    marginTop: 8,
+    margin: 8,
+    backgroundColor: '#FF6363'
   },
 });

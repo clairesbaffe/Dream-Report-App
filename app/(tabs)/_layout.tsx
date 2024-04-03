@@ -1,13 +1,12 @@
 import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Link, Tabs } from "expo-router";
-import { Pressable } from "react-native";
+import { Tabs } from "expo-router";
 
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 
-import ResetAllDreams from "@/components/ResetAllDreams";
+import ResetAllDreams from "@/components/DeleteDreams";
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -42,7 +41,7 @@ export default function TabLayout() {
           title: "History",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerRight: () => (
-            <ResetAllDreams />
+            <ResetAllDreams visible={true} resetAll={true} dreamId={-1} buttonTitle="Reset all dreams" dialogTitle="Are you sure ?" dialogText="This operation is irreversible, do you really want to reset all your dreams ?" />
           ),
         }}
       />

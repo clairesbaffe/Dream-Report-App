@@ -8,10 +8,10 @@ import {
   Text,
   Dialog,
   Portal,
-  PaperProvider,
 } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DatePicker from "@/components/DatePicker";
+import DeleteDreams from "@/components/DeleteDreams";
 
 import { useNavigation } from "@react-navigation/native";
 
@@ -298,12 +298,26 @@ export default function DreamForm({
         Submit
       </Button>
 
+      <DeleteDreams
+        visible={update}
+        resetAll={false}
+        dreamId={dreamData ? dreamData.id : -1}
+        buttonTitle="Delete dream"
+        dialogTitle="Are you sure ?"
+        dialogText="This operation is irreversible, do you really want to delete this dream ?"
+      />
+
       <Portal>
         <Dialog visible={visibleDialog} onDismiss={hideDialog}>
           <Dialog.Title>Confirm overwrite</Dialog.Title>
           <Dialog.Content>
-            <Text variant="bodyMedium">You chose to use AI-generated categories. This will overwrite your current categories.</Text>
-            <Text variant="bodyMedium">Are you sure you want to overwrite your categories ?</Text>
+            <Text variant="bodyMedium">
+              You chose to use AI-generated categories. This will overwrite your
+              current categories.
+            </Text>
+            <Text variant="bodyMedium">
+              Are you sure you want to overwrite your categories ?
+            </Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={hideDialog}>Cancel</Button>
