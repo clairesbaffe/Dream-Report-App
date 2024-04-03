@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Dimensions, Pressable } from "react-native";
-import { TextInput, Button, Checkbox, Chip, Text } from "react-native-paper";
+import {
+  TextInput,
+  Button,
+  Checkbox,
+  Chip,
+  Text,
+  Dialog,
+  Portal,
+  PaperProvider,
+} from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DatePicker from "@/components/DatePicker";
 
@@ -20,6 +29,10 @@ export default function DreamForm({
 }) {
   const navigation = useNavigation();
 
+  const [visibleDialog, setVisibleDialog] = useState(false);
+  const showDialog = () => setVisibleDialog(true);
+  const hideDialog = () => setVisibleDialog(false);
+
   const [dreamTitle, setDreamTitle] = useState("");
   const [dreamText, setDreamText] = useState("");
   const [isLucidDream, setIsLucidDream] = useState(false);
@@ -29,7 +42,7 @@ export default function DreamForm({
 
   let categoriesToRecord: any[] = [];
 
-  const [useAICategories, setUseAICategories] = useState(false);
+  const [useAICategories, setUseAICategories] = useState(true);
 
   useEffect(() => {
     if (dreamData) {
@@ -41,8 +54,14 @@ export default function DreamForm({
       setDreamDate(new Date(year, month - 1, day));
 
       setApiCategoriesDream(dreamData.apiCategories);
+      setUseAICategories(false);
     }
   }, []);
+
+  const handleSubmissionButton = () => {
+    if (update && useAICategories) showDialog();
+    else handleDreamSubmission();
+  };
 
   const handleDreamSubmission = async () => {
     // Dream submission processing logic
@@ -142,7 +161,7 @@ export default function DreamForm({
         setDreamDate(new Date(Date.now()));
         setApiCategoriesDream([]);
 
-        setUseAICategories(false);
+        setUseAICategories(true);
 
         categoriesToRecord = [];
       }
@@ -273,11 +292,27 @@ export default function DreamForm({
 
       <Button
         mode="contained"
-        onPress={handleDreamSubmission}
+        onPress={handleSubmissionButton}
         style={styles.button}
       >
         Submit
       </Button>
+
+      <Portal>
+        <Dialog visible={visibleDialog} onDismiss={hideDialog}>
+          <Dialog.Title>Confirm overwrite</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">You chose to use AI-generated categories. This will overwrite your current categories.</Text>
+            <Text variant="bodyMedium">Are you sure you want to overwrite your categories ?</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={hideDialog}>Cancel</Button>
+            <Button onPress={handleDreamSubmission}>
+              Yes, overwrite my categories
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 }
