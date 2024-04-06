@@ -18,6 +18,8 @@ import { useNavigation } from "@react-navigation/native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { AntDesign } from "@expo/vector-icons";
 
+import ApiKeyService from '../ApiKeyService';
+
 const { width } = Dimensions.get("window");
 
 export default function DreamForm({
@@ -82,7 +84,7 @@ export default function DreamForm({
         const apiUrl = "https://api.meaningcloud.com/topics-2.0";
         const language = "en";
         const tmpDream = dreamText;
-        const apiKey = "8a9e14d3f8705c94a3b33d3054664a27";
+        const apiKey = ApiKeyService.getApiKey();
         const formdata = new FormData();
         formdata.append("key", apiKey);
         formdata.append("txt", tmpDream);
