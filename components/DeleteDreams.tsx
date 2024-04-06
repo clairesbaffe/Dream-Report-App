@@ -70,8 +70,8 @@ export default function ResetAllDreams({
             <Text variant="bodyMedium">{dialogText}</Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={hideDialog}>Cancel</Button>
             <Button onPress={handleResetDreams}>OK</Button>
+            <Button onPress={hideDialog}>Cancel</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

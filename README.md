@@ -6,6 +6,7 @@ This project uses React Native, TypeScript, graphic library React Native Paper a
 
 ## Install and Launch
 
+Create file `ApiKeyService.ts` and declare your MeaningCloud API Key, with function `getApiKey()`.  
 Start project with `npx expo` command. Installation is managed by Expo.
 
 ## Implemented features
@@ -20,19 +21,29 @@ Start project with `npx expo` command. Installation is managed by Expo.
 
     Categories cannot be written by the user on first record. Categories are either written by the AI or there are none.
 
+    ![Dream form screenshot](./assets/images/dream-form.png)
+
 - Call Meaning Cloud API on dream submission.
 
 - Display dream historic, sorted by descending date.
 
+    ![Dream historic screenshot](./assets/images/dream-historic.png)
+
 - Search field on dream title in historic.
 
+    ![Search field demo screenshot](./assets/images/search-field-demo-screenshot.png)
+
 - Reset all dreams, with confirmation before deleting.
+
+    ![Reset all dreams confirmation screenshot](./assets/images/reset-all-dreams-confirmation-screenshot.png)
 
 - Update a dream : 
     - Remove a category
     - Add a new category
     - Overwrite categories with AI categories, with confirmation before updating the dream
     - Update all other fields
+
+    ![Edit dream form screenshot](./assets/images/edit-dream-form-screenshot.png)
 
 - Delete a dream, with confirmation before deleting.
 

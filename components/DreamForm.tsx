@@ -322,10 +322,10 @@ export default function DreamForm({
             </Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={hideDialog}>Cancel</Button>
             <Button onPress={handleDreamSubmission}>
               Yes, overwrite my categories
             </Button>
+            <Button onPress={hideDialog}>Cancel</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
