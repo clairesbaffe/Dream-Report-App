@@ -1,5 +1,5 @@
 import React from "react";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { FontAwesome, FontAwesome5, AntDesign } from '@expo/vector-icons';
 import { Tabs } from "expo-router";
 
 import Colors from "@/constants/Colors";
@@ -32,14 +32,14 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Record a dream",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <AntDesign name="cloudo" size={24} color={ color } />,
         }}
       />
       <Tabs.Screen
         name="two"
         options={{
           title: "Dream history",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome5 name="history" size={24} color={ color } />,
           headerRight: () => (
             <ResetAllDreams visible={true} resetAll={true} dreamId={-1} buttonTitle="Reset all dreams" dialogTitle="Are you sure ?" dialogText="This operation is irreversible, do you really want to reset all your dreams ?" />
           ),
