@@ -38,18 +38,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: "History",
+          title: "Dream history",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerRight: () => (
             <ResetAllDreams visible={true} resetAll={true} dreamId={-1} buttonTitle="Reset all dreams" dialogTitle="Are you sure ?" dialogText="This operation is irreversible, do you really want to reset all your dreams ?" />
           ),
-        }}
-      />
-      <Tabs.Screen
-        name="three"
-        options={{
-          title: "Tab Three",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />
     </Tabs>
